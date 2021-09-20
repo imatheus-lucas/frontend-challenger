@@ -10,18 +10,45 @@ import {
   Button,
   Box,
   Flex,
-  useDisclosure
+  useDisclosure,
 } from "@chakra-ui/react";
 import { useEffect, useRef } from "react";
 import { useDataContext } from "../../contexts/DataContext";
 import { Spinner } from "@chakra-ui/react";
-import { FixedSizeList as List } from "react-window";
+
 import DetailsUser from "../DetailsUser";
+import { useParams } from "react-router-dom";
+import api from "../../services/api";
+
+type ParamsProps = {
+  id: string;
+};
+
 const ListUsers = () => {
-  const { listPatients, nextPage, loadMore,selectPatient } = useDataContext();
+  const {
+    listPatients,
+    nextPage,
+    loadMore,
+    selectPatient,
+    handleDataPatients,
+  } = useDataContext();
   const tableBottomRef = useRef<HTMLTableCellElement>(null);
-  
+
+  const { id } = useParams() as ParamsProps;
+
+  const getPersonById = async () => {
+    if (id) {
+      const { data } = await api.get(`/?id=${id}`);
+      const patient = handleDataPatients(data);
+      if (patient) {
+        setSelectedPatient(patient[0]);
+      }
+    }
+  };
+
   useEffect(() => {
+    getPersonById();
+
     const intersectionObserver = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) {
         nextPage();
@@ -59,7 +86,9 @@ const ListUsers = () => {
 
               <Td>{patient.birthDate}</Td>
               <Td>
-                <Button onClick={() => setSelectedPatient(patient)}>View</Button>
+                <Button onClick={() => setSelectedPatient(patient)}>
+                  View
+                </Button>
               </Td>
             </Tr>
           ))}
@@ -68,7 +97,7 @@ const ListUsers = () => {
           <Tr>
             <Td minHeight={350} colSpan={4} ref={tableBottomRef}>
               {loadMore && (
-                <Flex  justify="center" marginBottom="125" align="center">
+                <Flex justify="center" marginBottom="125" align="center">
                   <Spinner size="xl" />
                 </Flex>
               )}
@@ -76,7 +105,7 @@ const ListUsers = () => {
           </Tr>
         </Tfoot>
       </Table>
-      <DetailsUser isOpen={isOpen} onClose={onClose}/>
+      <DetailsUser isOpen={isOpen} onClose={onClose} />
     </>
   );
 };

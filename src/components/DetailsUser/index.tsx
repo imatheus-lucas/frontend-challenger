@@ -21,7 +21,7 @@ type DetailsUserProps = {
 };
 const DetailsUser = ({ isOpen, onClose }: DetailsUserProps) => {
   const { selectedPatient } = useDataContext();
-  console.log(selectedPatient);
+
   return (
     <>
       <Modal isOpen={isOpen} onClose={onClose}>
@@ -70,7 +70,15 @@ const DetailsUser = ({ isOpen, onClose }: DetailsUserProps) => {
                   {selectedPatient?.shareUrl}
                 </Text> */}
               </Box>
-              <Button>Share</Button>
+              <Button
+                onClick={() => {
+                  navigator.clipboard.writeText(
+                    String(selectedPatient?.shareUrl)
+                  );
+                }}
+              >
+                Share
+              </Button>
             </Flex>
           </ModalBody>
 
